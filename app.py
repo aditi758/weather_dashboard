@@ -4,8 +4,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-API_KEY = "96e7ec1adf813cba22fc64c9f28ef7cc"
-WAQI_TOKEN = "336447b114bc6220f71dd1752af43b1f3ca3926f"
+API_KEY = "####"
+WAQI_TOKEN = "####"
 
 WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
