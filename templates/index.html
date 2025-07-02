@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather Dashboard</h1>
+
+    <form method="POST" class="search-form">
+      <input type="text" name="city" placeholder="Enter city name" required="">
+      <button type="submit">Search</button>
+    </form>
+
+    {% if data %}
+    <div class="content">
+      <div class="left-panel">
+        <p><strong>{{ data.city }}</strong></p>
+        <p>🌡️ Temperature: {{ data.temperature }}°C</p>
+        <p>🌅 Sunrise: {{ data.sunrise }}</p>
+        <p>🌇 Sunset: {{ data.sunset }}</p>
+        <p>🌫️ AQI: {{ data.aqi }} ({{ data.aqi_description }})</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="right-panel">
+        {% if forecast and forecast[0] %}
+        <div class="weather-icon-text">
+          <img src="https://openweathermap.org/img/wn/{{ forecast[0].icon }}@2x.png" alt="Weather Icon">
+          <span class="weather-text">{{ data.description }}</span>
+        </div>
+        {% endif %}
+
+        <div id="clock"></div>
+        <div id="date"></div>
+
+        <canvas id="forecastChart" width="400" height="200"></canvas>
+
+        
+            {% for day in forecast %}
+            
+            {% endfor %}
+          <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Temp (°C)</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+              <td>{{ day.date }}</td>
+              <td>{{ day.temp }}</td>
+              <td>{{ day.description }}</td>
+            </tr></tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if data %}
+  <script>
+    const offset = JSON.parse('{{ data.timezone | tojson | safe }}');
+    function updateClock(offset) {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const cityTime = new Date(utc + offset * 1000);
+      document.getElementById("clock").textContent = cityTime.toLocaleTimeString();
+      document.getElementById("date").textContent = cityTime.toLocaleDateString();
+    }
+    updateClock(offset);
+    setInterval(() => updateClock(offset), 1000);
+  </script>
+  {% endif %}
+
+  {% if labels and temps %}
+  <script>
+    const labels = JSON.parse('{{ labels | tojson | safe }}');
+    const temps = JSON.parse('{{ temps | tojson | safe }}');
+
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Temp (°C)',
+          data: temps,
+          borderColor: 'blue',
+          fill: true,
+          tension: 0.4,
+          backgroundColor: 'rgba(0,123,255,0.1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          title: {
+            display: true,
+            text: '5-Day Temperature Forecast'
+          }
+        }
+      }
+    });
+  </script>
+  {% endif %}
+
+
+</body></html>
